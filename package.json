@@ -9,6 +9,7 @@
   "author": "Kumari Deeksha",
   "license": "ISC",
   "dependencies": {
+    "hbs": "^4.0.1",
     "request": "^2.88.0"
   }
 }
