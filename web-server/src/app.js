@@ -4,9 +4,11 @@ const express = require('express');
 
 const app = express()
 const publicDirectoryPath=path.join(__dirname, '../public');
+const viewsPath=path.join(__dirname,'../templates')
 app.set('view engine','hbs')
-
+app.set('views',viewsPath)
 app.use(express.static(publicDirectoryPath))
+
 app.get('', (req, res) => {
     // res.send('hello')
     res.render('index')
@@ -62,7 +64,7 @@ app.get('*', (req, res) => {
     })
 })
 
-app.listen(805, () => {
+app.listen(803, () => {
     console.log('Server is up on port 805.')
 
 })
