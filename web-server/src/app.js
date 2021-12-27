@@ -4,6 +4,8 @@ const hbs = require('hbs')
 const geocode = require('./utils/geocode')
 const forecast =require('./utils/forecast')
 
+const port = process.env.PORT || 800
+
 const app = express()
 const publicDirectoryPath=path.join(__dirname, '../public');
 const viewsPath=path.join(__dirname,'../templates/views')
@@ -41,38 +43,41 @@ app.get('/weather', (req, res) => {
             error: 'Provide an address!'
         })
     }
-})
-app.get('/products', (req,res)=>{
-    if(!req.query.search)
-    {
-       res.send({
-           error:'provide a search term'
-       })
-    }
-    console.log(req.query.search)
-    return res.send({
-        product:[]
-    })
-}
-)
-
-    geocode(req.query.address, (error, { latitude, longitude, location } ) => {
-        if (error) {
-            return res.send({ error })
-        }
-
-        forecast(latitude, longitude, (error, forecastData) => {
+    else{
+        geocode(req.query.address, (error, { latitude, longitude, location } ) => {
             if (error) {
                 return res.send({ error })
             }
-
-            res.send({
-                forecast: forecastData,
-                location,
-                address: req.query.address
+    
+            forecast(latitude, longitude, (error, forecastData) => {
+                if (error) {
+                    return res.send({ error })
+                }
+    
+                res.send({
+                    forecast: forecastData,
+                    location,
+                    address: req.query.address
+                })
             })
         })
-    })
+    }
+})
+// app.get('/products', (req,res)=>{
+//     if(!req.query.search)
+//     {
+//        res.send({
+//            error:'provide a search term'
+//        })
+//     }
+//     console.log(req.query.search)
+//     return res.send({
+//         product:[]
+//     })
+// }
+// )
+
+   
 
 
 app.get('*', (req, res) => {
@@ -83,7 +88,6 @@ app.get('*', (req, res) => {
     })
 })
 
-app.listen(805, () => {
-    console.log('Server is up on port 805.')
-
+app.listen(port, () => {
+    console.log('Server is up on port ' + port)
 })
