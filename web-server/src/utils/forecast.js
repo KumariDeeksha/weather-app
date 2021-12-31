@@ -13,4 +13,4 @@ request({url: url,json: true},(error,response) =>{
 })
 }
 
-module.export = forecast
+module.exports = forecast
