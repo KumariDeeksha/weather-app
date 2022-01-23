@@ -11,16 +11,16 @@ weatherForm.addEventListener('submit',(e)=>{
 
     const location = search.value
 
-    messageOne.textContent = 'Loading...'
-    messageTwo.textContent = ''
+    messageOne.textContent = 'Loading...';
+    messageTwo.textContent = '';
 
-    fetch('/weather?address=' + location).then((response) => {
-        response.json().then((data) => {
+    fetch(`/weather?address=${location}`).then((res) => {
+        res.json().then((data) => {
             if (data.error) {
-                messageOne.textContent = data.error
+                messageOne.textContent = data.error;
             } else {
-                messageOne.textContent = data.location
-                messageTwo.textContent = data.forecast
+                messageOne.textContent = data.location;
+                messageTwo.textContent = data.forecast;
             }
         })
     })

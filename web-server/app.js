@@ -1,58 +1,99 @@
-// console.log("starting")
+const path = require('path')
+const express = require('express');
+const hbs = require('hbs')
+const geocode = require('./src/utils/geocode')
+const forecast =require('./src/utils/forecast')
 
-// setTimeout( ()=>{
-// console.log("2 sec timer")
-// },2000
-// )
-// setTimeout( ()=>{
-// console.log("0 sec timer")
-// },0
-// )
+const port = process.env.PORT || 8000
 
-// console.log("stopping")
-const request=require('request')
-const request= require('request')
-const geocode = require('./utils/geocode')
-const forecast = require('./utils/forecast')
-const url = 'http://api.weatherstack.com/current?access_key=3534a4f888605991fb027eab2dad71c7&query=37.8267,-122.4233'
+const app = express()
+const publicDirectoryPath=path.join(__dirname, '/public');
+const viewsPath=path.join(__dirname,'/templates/views')
+const partialsPath = path.join(__dirname,'/templates/partials')
 
-request({url: url, json:true},(error,response) =>{
-// console.log(response.body.current)
-console.log("it is currently "+ response.body.current.temperature + " degrees out but it feeels like " + response.body.current.feelslike + " degrees out")
+app.set('view engine','hbs')
+app.set('views',viewsPath)
+hbs.registerPartials(partialsPath)
+
+app.use(express.static(publicDirectoryPath))
+
+app.get('', (req, res) => {
+    // res.send('hello')
+    res.render('index');
+    // {
+       
+    //     name: 'Deeksha'
+    // }
 })
 
+app.get('/about', (req, res) => {
+    res.render('about');
+    // {
+    //     title: 'About Me',
+    //     name: 'Deeksha'
+    // })
+})
 
+app.get('/help', (req, res) => {
+    res.render('help');
+    // {
+    //     helpText: 'Helping text.',
+    //     title: 'Help',
+    //     name: 'Deeksha'
+    // })
+})
 
-
-const geocodeurl = 'https://api.mapbox.com/geocoding/v5/mapbox.places/Los%20Angeles.json?access_token=pk.eyJ1IjoiaWFtc2hpdmlrYXR5YWdpIiwiYSI6ImNreGJrOHZvMDA4emcybm1teXRyOGFlY3gifQ.KYUFqdq68RORFq9ovRqlIw'
-
- request({url: geocodeurl,json:true},(error,response) =>{
-    const longitude = response.body.features[0].centre[0]
-    const latitude = response.body.features[0].centre[1]
-    console.log(latitude, longitude)
- })
-
-request({ url: geocodeURL, json: true }, (error, response) => {
-    if (error) {
-        console.log('Unable to connect to location services!')
-    } else if (response.body.features.length === 0) {
-        console.log('Unable to find location. Try another search.')
-    } else {
-        const latitude = response.body.features[0].center[0]
-        const longitude = response.body.features[0].center[1]
-        console.log(latitude, longitude)
+app.get('/weather', (req, res) => {
+    if (!req.query.address) {
+        return res.send({
+            error: 'Provide an address!'
+        })
+    }
+    else{
+        geocode(req.query.address, (error, { latitude, longitude, location } ={} ) => {
+            if (error) {
+                return res.send({ error })
+            }
+    
+            forecast(latitude, longitude, (error, forecastData) => {
+                if (error) {
+                    return res.send({ error })
+                }
+    
+                res.send({
+                    forecast: forecastData,
+                    location,
+                    address: req.query.address
+                })
+            })
+        })
     }
 })
+// app.get('/products', (req,res)=>{
+//     if(!req.query.search)
+//     {
+//        res.send({
+//            error:'provide a search term'
+//        })
+//     }
+//     console.log(req.query.search)
+//     return res.send({
+//         product:[]
+//     })
+// }
+// )
+
+   
 
 
-
-geocode('Boston', (error, data) => {
-    console.log('Error', error)
-    console.log('Data', data)
+app.get('*', (req, res) => {
+    res.render('404', {
+        title: '404',
+        name: 'Deeksha',
+        errorMessage: 'Page not found.'
+    })
 })
 
-forecast(-75.7088,44.1545,(error,data) =>{
-    console.log('Error',error)
-    console.log('Data',data)
+app.listen(port, () => {
+    console.log('Server is up on port ' + port)
 })
-
